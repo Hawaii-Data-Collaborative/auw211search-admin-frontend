@@ -10,8 +10,7 @@ export const UserActivityList = () => {
         <TextField source="userId" />
         <TextField source="event" />
         <TextField source="data" />
-        <DateField source="createdAt" />
-        <DateField source="updatedAt" />
+        <DateField source="createdAt" showTime sx={{ display: 'inline-block', minWidth: 170 }} />
       </Datagrid>
     </List>
   )
