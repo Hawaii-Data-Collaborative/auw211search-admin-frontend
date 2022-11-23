@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { AppBar } from 'react-admin'
 import Typography from '@mui/material/Typography'
 import logoSrc from '../assets/logo.svg'

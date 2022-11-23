@@ -1,4 +1,4 @@
-import { Datagrid, List, TextInput, TextField } from 'react-admin'
+import { Datagrid, Edit, List, SimpleForm, TextInput, TextField, useRecordContext } from 'react-admin'
 
 export const ProgramList = () => {
   const filters = [
@@ -29,3 +29,17 @@ export const ProgramList = () => {
     </List>
   )
 }
+
+const Title = () => {
+  const record = useRecordContext()
+  return record?.Name || 'Edit Program'
+}
+
+export const ProgramEdit = () => (
+  <Edit title={<Title />}>
+    <SimpleForm>
+      <TextInput source="Name" sx={{ maxWidth: 600 }} fullWidth />
+      <TextInput source="keywords" placeholder="Example:  child;children;kids" sx={{ maxWidth: 600 }} fullWidth />
+    </SimpleForm>
+  </Edit>
+)
