@@ -29,7 +29,9 @@ function renderData(record) {
     data = JSON.parse(data)
   }
   let lines = []
-  for (const [k, v] of Object.entries(data)) {
+  const keys = Object.keys(data).sort()
+  for (const k of keys) {
+    const v = data[k]
     lines.push(
       <tr key={k}>
         <td style={{ color: '#778', verticalAlign: 'top' }}>{k}: </td>
