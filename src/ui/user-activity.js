@@ -9,7 +9,7 @@ export const UserActivityList = () => {
 
   return (
     <List aside={<FilterSidebar />}>
-      <Datagrid rowClick="edit">
+      <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="userId" />
         <TextField source="event" />

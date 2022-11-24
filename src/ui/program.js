@@ -1,4 +1,15 @@
-import { Datagrid, Edit, List, SimpleForm, TextInput, TextField, useRecordContext } from 'react-admin'
+import {
+  Datagrid,
+  Edit,
+  List,
+  SimpleForm,
+  TextInput,
+  TextField,
+  useRecordContext,
+  Toolbar as RAToolbar,
+  ToolbarClasses,
+  SaveButton
+} from 'react-admin'
 
 export const ProgramList = () => {
   const filters = [
@@ -10,7 +21,7 @@ export const ProgramList = () => {
 
   return (
     <List filters={filters}>
-      <Datagrid rowClick="edit">
+      <Datagrid rowClick="edit" bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="Name" sx={{ minWidth: 250, display: 'inline-block' }} />
         <TextField source="Status__c" label="Status" />
@@ -36,10 +47,24 @@ const Title = () => {
 }
 
 export const ProgramEdit = () => (
-  <Edit title={<Title />}>
-    <SimpleForm>
+  <Edit title={<Title />} redirect={false} mutationMode="pessimistic">
+    <SimpleForm toolbar={<Toolbar />}>
       <TextInput source="Name" sx={{ maxWidth: 600 }} fullWidth />
-      <TextInput source="keywords" placeholder="Example:  child;children;kids" sx={{ maxWidth: 600 }} fullWidth />
+      <TextInput
+        source="keywords"
+        label="Keywords (separated by semicolon)"
+        placeholder="Example:  food;kitchen;soup"
+        sx={{ maxWidth: 600 }}
+        fullWidth
+      />
     </SimpleForm>
   </Edit>
+)
+
+const Toolbar = () => (
+  <RAToolbar>
+    <div className={ToolbarClasses.defaultToolbar}>
+      <SaveButton />
+    </div>
+  </RAToolbar>
 )
