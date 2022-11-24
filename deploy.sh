@@ -8,6 +8,7 @@ ssh wwa bash << EOF
 cd /var/www/auwsearch.windwardapps.com/auw-admin-ui
 if [ -d "./build" ]; then
   echo "[deploy] moving existing build dir to build-old ..."
+  rm -rf build-old
   mv build build-old
 fi
 echo "[deploy] uncompressing ..."
