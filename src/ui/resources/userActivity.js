@@ -2,7 +2,7 @@ import { Datagrid, DateField, FilterList, FilterListItem, FunctionField, List, T
 import { Card, CardContent } from '@mui/material'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { API_URL } from '../constants'
+import { API_URL } from '../../constants'
 
 export const UserActivityList = () => {
   // const filters = [<SearchInput source="userId" />, <SearchInput source="event" />, <SearchInput source="data" />]
