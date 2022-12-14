@@ -73,6 +73,7 @@ export function Settings() {
               fullWidth
             />
             <NumberInput source="trendingMinCount" label="Minimum # of hits for trending" fullWidth />
+            <NumberInput source="trendingMaxShow" label="Maximum # of trends to show in suggestions" fullWidth />
           </SimpleForm>
         </EditContextProvider>
       </Card>
