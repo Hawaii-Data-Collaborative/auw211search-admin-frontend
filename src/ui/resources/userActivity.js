@@ -102,6 +102,18 @@ function FilterSidebar() {
     }
   }, [])
 
+  const getIndent = eventName => {
+    const visit = (eventName, indent = 0) => {
+      let rv = indent
+      const similarEventNames = events.filter(e => e !== eventName && eventName.includes(e))
+      for (const similarEventName of similarEventNames) {
+        rv = visit(similarEventName, indent + 2)
+      }
+      return rv
+    }
+    return visit(eventName, 0)
+  }
+
   return (
     <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 380 }}>
       <CardContent>
@@ -109,7 +121,7 @@ function FilterSidebar() {
         {/* <FilterLiveSearch /> */}
         <FilterList label="Event">
           {events.map(e => (
-            <FilterListItem key={e} label={e} value={{ event: e }} />
+            <FilterListItem key={e} label={e} value={{ event: e }} sx={{ pl: getIndent(e) }} />
           ))}
         </FilterList>
       </CardContent>
