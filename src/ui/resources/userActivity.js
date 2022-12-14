@@ -82,9 +82,11 @@ function Pagination() {
 }
 
 let _events
+let _users
 
 function FilterSidebar() {
   const [events, setEvents] = useState([])
+  const [users, setUsers] = useState([])
 
   useEffect(() => {
     if (_events) {
@@ -97,6 +99,22 @@ function FilterSidebar() {
           _events = data
         }
         setEvents(data)
+      }
+      fn()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (_users) {
+      setEvents(_users)
+    } else {
+      const fn = async () => {
+        const res = await axios.get(API_URL + '/user_activity_users')
+        const { data } = res
+        if (data) {
+          _users = data
+        }
+        setUsers(data)
       }
       fn()
     }
@@ -115,13 +133,18 @@ function FilterSidebar() {
   }
 
   return (
-    <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 380 }}>
+    <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 400 }}>
       <CardContent>
         {/* <SavedQueriesList /> */}
         {/* <FilterLiveSearch /> */}
         <FilterList label="Event">
           {events.map(e => (
             <FilterListItem key={e} label={e} value={{ event: e }} sx={{ pl: getIndent(e) }} />
+          ))}
+        </FilterList>
+        <FilterList label="User">
+          {users.map(u => (
+            <FilterListItem key={u} label={u} value={{ userId: u }} sx={{ pl: getIndent(u) }} />
           ))}
         </FilterList>
       </CardContent>
