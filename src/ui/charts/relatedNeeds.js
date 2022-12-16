@@ -89,20 +89,20 @@ function buildChart(data, { width = window.innerWidth * 0.6, height = window.inn
 
   const gNode = svg.append('g').attr('cursor', 'pointer').attr('pointer-events', 'all')
 
-  let popupDiv
-  function showPopup(data, x, y) {
+  let tooltipDiv
+  function showTooltip(data, x, y) {
     const keyword = data.name
     const date = dayjs(data.createdAt).format('l LT')
-    popupDiv = document.createElement('div')
-    popupDiv.className = 'RelatedNeedsPopup'
-    popupDiv.style.left = `${x}px`
-    popupDiv.style.top = `${y - 30}px`
-    popupDiv.innerHTML = `<div>"${keyword}" searched at ${date}</div>`
-    document.body.appendChild(popupDiv)
+    tooltipDiv = document.createElement('div')
+    tooltipDiv.className = 'viz-tooltip'
+    tooltipDiv.style.left = `${x}px`
+    tooltipDiv.style.top = `${y - 30}px`
+    tooltipDiv.innerHTML = `<div>"${keyword}" searched at ${date}</div>`
+    document.body.appendChild(tooltipDiv)
   }
 
-  function hidePopup() {
-    document.body.removeChild(popupDiv)
+  function hideTooltip() {
+    document.body.removeChild(tooltipDiv)
   }
 
   function update(source) {
@@ -144,10 +144,10 @@ function buildChart(data, { width = window.innerWidth * 0.6, height = window.inn
         update(d)
       })
       .on('mouseover', (event, d) => {
-        showPopup(d.data, event.x, event.y)
+        showTooltip(d.data, event.x, event.y)
       })
       .on('mouseout', (event, d) => {
-        hidePopup()
+        hideTooltip()
       })
 
     nodeEnter

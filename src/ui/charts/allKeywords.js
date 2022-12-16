@@ -6,6 +6,10 @@ import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
 import { API_URL } from '../../constants'
+import dayjs from 'dayjs'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+
+dayjs.extend(localizedFormat)
 
 const divId = 'all-keywords-searches-chart'
 
@@ -98,9 +102,12 @@ function buildChart(
       const d = data[i]
       const lines = _.compact([
         `${formatDate(new Date(d.date))} • ${d.count} searches • ${d.users.length} users`,
-        'Keywords:',
-        ...d.keywords.splice(0, 10),
-        d.keywords.length > 10 ? `+${d.keywords.length - 10} more` : null
+        '\nKeywords:',
+        ...d.keywords
+          .slice()
+          .splice(0, 10)
+          .map(s => '    ' + s),
+        d.keywords.length > 10 ? `    +${d.keywords.length - 10} more` : null
       ])
       return lines.join('\n')
     }
@@ -123,6 +130,21 @@ function buildChart(
         ? `M${(w + 1) * cellSize},0`
         : `M${(w + 1) * cellSize},0V${d * cellSize}H${w * cellSize}`
     }V${weekDays * cellSize}`
+  }
+
+  let tooltipDiv
+  function showTooltip(text, x, y) {
+    tooltipDiv = document.createElement('div')
+    tooltipDiv.className = 'viz-tooltip'
+    tooltipDiv.style.left = `${x}px`
+    tooltipDiv.style.top = `${y - 20}px`
+    tooltipDiv.style.transform = `translate(-50%, -100%)`
+    tooltipDiv.innerHTML = `<div>${text}</div>`
+    document.body.appendChild(tooltipDiv)
+  }
+
+  function hideTooltip() {
+    document.body.removeChild(tooltipDiv)
   }
 
   const svg = d3
@@ -172,7 +194,15 @@ function buildChart(
     .attr('y', i => countDay(X[i].getUTCDay()) * cellSize + 0.5)
     .attr('fill', i => color(Y[i]))
 
-  if (title) cell.append('title').text(title)
+  if (title) {
+    cell
+      .on('mouseover', (event, i) => {
+        showTooltip(title(i), event.x, event.y)
+      })
+      .on('mouseout', () => {
+        hideTooltip()
+      })
+  }
 
   const month = year
     .append('g')
