@@ -1,0 +1,20 @@
+.KeywordChart {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 20px;
+  margin: 0 20px 20px 0;
+  display: inline-block;
+  .header {
+    h3 {
+      font-size: 16px;
+    }
+    padding-bottom: 20px;
+  }
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 14px;
+  }
+}

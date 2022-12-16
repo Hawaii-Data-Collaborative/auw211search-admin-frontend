@@ -14,6 +14,7 @@ import { ProgramEdit, ProgramList } from './resources/program'
 import { API_URL } from '../constants'
 import { Settings } from './Settings'
 import { Dashboard } from './Dashboard'
+import { UserActivityDashboard } from './resources/dashboard'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +29,8 @@ const queryClient = new QueryClient({
 const Menu = props => (
   <RAMenu {...props}>
     <RAMenu.DashboardItem primaryText="Home" />
-    <RAMenu.Item to="/user_activity" primaryText="User Activity" leftIcon={<GroupIcon />} />
+    <RAMenu.Item to="/dashboard" primaryText="User Activity - Dashboard" leftIcon={<GroupIcon />} />
+    <RAMenu.Item to="/user_activity" primaryText="User Activity - List" leftIcon={<GroupIcon />} />
     <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
     {/* <RAMenu.Item to="/agency" primaryText="Agencies" leftIcon={<BusinessIcon />} /> */}
     <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
@@ -46,6 +48,7 @@ export function App() {
       layout={Layout}
       dashboard={Dashboard}
     >
+      <Resource name="dashboard" list={UserActivityDashboard} />
       <Resource name="user_activity" list={UserActivityList} />
       <Resource name="program" list={ProgramList} edit={ProgramEdit} />
       {/* <Resource name="agency" list={AgencyList} /> */}
