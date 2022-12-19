@@ -137,6 +137,15 @@ function FilterSidebar() {
       <CardContent>
         {/* <SavedQueriesList /> */}
         {/* <FilterLiveSearch /> */}
+        <FilterList label="Date">
+          <FilterListItem label="Today" value={{ createdAt: 'today' }} />
+          <FilterListItem label="Yesterday" value={{ createdAt: 'yesterday' }} />
+          <FilterListItem label="This week" value={{ createdAt: 'thisWeek' }} />
+          <FilterListItem label="Last week" value={{ createdAt: 'lastWeek' }} />
+          <FilterListItem label="This month" value={{ createdAt: 'thisMonth' }} />
+          <FilterListItem label="This quarter" value={{ createdAt: 'thisQuarter' }} />
+          <FilterListItem label="This year" value={{ createdAt: 'thisYear' }} />
+        </FilterList>
         <FilterList label="Event">
           {events.map(e => (
             <FilterListItem key={e} label={e} value={{ event: e }} sx={{ pl: getIndent(e) }} />
