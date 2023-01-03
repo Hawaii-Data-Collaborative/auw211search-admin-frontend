@@ -1,16 +1,20 @@
 import axios from 'axios'
+import _ from 'lodash'
 import { useEffect, useState } from 'react'
-import { Card } from '@mui/material'
-import { useFormContext } from 'react-hook-form'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { Button, ButtonGroup, Card, IconButton } from '@mui/material'
+import AddIcon from '@mui/icons-material/Add'
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
+import RemoveIcon from '@mui/icons-material/Remove'
+import { useController } from 'react-hook-form'
 import {
   EditContextProvider,
   NumberInput,
-  SaveButton,
   SelectInput,
   SimpleForm,
   Title,
-  Toolbar as RAToolbar,
-  useNotify
+  useNotify,
+  useRecordContext
 } from 'react-admin'
 
 import { API_URL } from '../constants'
@@ -37,8 +41,13 @@ export function Settings() {
   const onSubmit = async data => {
     try {
       setSaving(true)
-      await axios.post(API_URL + '/settings', data)
-      setSaving(false)
+      const cleanData = _.cloneDeep(data)
+      if (cleanData.trends) {
+        cleanData.trends = JSON.stringify(cleanData.trends.map(t => t.text))
+      }
+      const res = await axios.post(API_URL + '/settings', cleanData)
+      setSettings(res.data)
+      setTimeout(() => setSaving(false), 1500)
       notify('Saved')
     } catch (err) {
       setSaving(false)
@@ -61,7 +70,7 @@ export function Settings() {
             saving
           }}
         >
-          <SimpleForm sx={{ maxWidth: 400 }} toolbar={<Toolbar />}>
+          <SimpleForm sx={{ maxWidth: 400 }}>
             <SelectInput
               source="trendingRange"
               choices={[
@@ -74,6 +83,7 @@ export function Settings() {
             />
             <NumberInput source="trendingMinCount" label="Minimum # of hits for trending" fullWidth />
             <NumberInput source="trendingMaxShow" label="Maximum # of trends to show in suggestions" fullWidth />
+            {saving ? null : <TrendPreview />}
           </SimpleForm>
         </EditContextProvider>
       </Card>
@@ -81,16 +91,185 @@ export function Settings() {
   )
 }
 
-function Toolbar() {
-  const formCtx = useFormContext()
+function TrendPreview() {
+  const notify = useNotify()
+  const record = useRecordContext()
+  const manualTrendsCtl = useController({ name: 'manualTrends' })
+  const trendsCtl = useController({ name: 'trends' })
+  const [trends, setTrends] = useState(null)
+  const [style, setStyle] = useState('AUTO')
 
-  const onSuccess = () => {
-    formCtx.reset()
+  useEffect(() => {
+    if (record.manualTrends) {
+      setStyle('MANUAL')
+      axios.get(API_URL + '/trends/manual').then(res => {
+        setTrends(res.data.map((text, i) => ({ id: String(i + 1), text })))
+      })
+    } else {
+      axios
+        .get(API_URL + '/trends')
+        .then(res => {
+          setTrends(res.data.map((text, i) => ({ id: String(i + 1), text })))
+        })
+        .catch(err => {
+          notify(err.message)
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [record])
+
+  useEffect(() => {
+    trendsCtl.field.onChange(trends)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trends])
+
+  useEffect(() => {
+    manualTrendsCtl.field.onChange(style === 'MANUAL')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [style])
+
+  const onAddClick = () => {
+    setTrends([{ id: String(Math.round(Math.random() * -1000)), text: '' }, ...trends])
   }
 
+  const onRemoveClick = i => {
+    const trends2 = [...trends]
+    trends2.splice(i, 1)
+    setTrends(trends2)
+  }
+
+  const onTextChange = (e, trend, i) => {
+    const trends2 = [...trends]
+    trends2.splice(i, 1, { ...trend, text: e.target.value })
+    setTrends(trends2)
+  }
+
+  // #region dnd
+
+  const onDragEnd = result => {
+    // dropped outside the list
+    if (!result.destination) {
+      return
+    }
+
+    const trends2 = reorder(trends, result.source.index, result.destination.index)
+
+    setTrends(trends2)
+  }
+
+  // a little function to help us with reordering the result
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list)
+    const [removed] = result.splice(startIndex, 1)
+    result.splice(endIndex, 0, removed)
+
+    return result
+  }
+
+  const grid = 8
+
+  const getItemStyle = (isDragging, draggableStyle) => ({
+    // some basic styles to make the items look a bit nicer
+    userSelect: 'none',
+    margin: `0 0 ${grid}px 0`,
+
+    // change background colour if dragging
+    background: isDragging ? '#f3f3f3' : '#ffffff',
+
+    // styles we need to apply on draggables
+    ...draggableStyle
+  })
+
+  const getListStyle = isDraggingOver => ({
+    background: isDraggingOver ? '#f3f3f3' : '#fafafa',
+    padding: grid
+  })
+
+  // #endregion dnd
+
   return (
-    <RAToolbar>
-      <SaveButton mutationOptions={{ onSuccess }} type="button" />
-    </RAToolbar>
+    <div className="TrendPreview">
+      {!trends ? (
+        'Loading...'
+      ) : (
+        <>
+          <h4>Trending</h4>
+          <div className="actions">
+            <ButtonGroup size="small">
+              <Button variant={style === 'AUTO' ? 'contained' : 'outlined'} onClick={() => setStyle('AUTO')}>
+                Auto
+              </Button>
+              <Button variant={style === 'MANUAL' ? 'contained' : 'outlined'} onClick={() => setStyle('MANUAL')}>
+                Manual
+              </Button>
+            </ButtonGroup>
+            {style === 'MANUAL' ? (
+              <IconButton className="add" size="small" onClick={onAddClick}>
+                <AddIcon />
+              </IconButton>
+            ) : null}
+          </div>
+          <div className="list">
+            {style === 'AUTO' ? (
+              <>
+                {trends.map((t, i) => (
+                  <div key={i} className="trend trend-auto">
+                    {t.text}
+                  </div>
+                ))}
+              </>
+            ) : (
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="droppable">
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      style={getListStyle(snapshot.isDraggingOver)}
+                    >
+                      {trends.map((t, i) => (
+                        <Draggable key={t.id} draggableId={t.id} index={i}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              className="trend trend-manual"
+                              {...provided.draggableProps}
+                              style={getItemStyle(snapshot.isDragging, provided.draggableProps.style)}
+                            >
+                              <IconButton className="drag-handle" size="small" {...provided.dragHandleProps}>
+                                <DragIndicatorIcon />
+                              </IconButton>
+                              {Number(t.id) < 0 ? (
+                                <>
+                                  <input
+                                    type="text"
+                                    placeholder="Add text..."
+                                    value={t.text}
+                                    onChange={e => onTextChange(e, t, i)}
+                                    autoFocus
+                                    autoCapitalize="off"
+                                  />
+                                  <span className="badge">CUSTOM</span>
+                                </>
+                              ) : (
+                                <span className="text">{t.text}</span>
+                              )}
+                              <IconButton className="remove" size="small" onClick={() => onRemoveClick(i)}>
+                                <RemoveIcon />
+                              </IconButton>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   )
 }

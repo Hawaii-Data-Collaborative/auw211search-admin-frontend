@@ -1,3 +1,67 @@
 .Settings {
   margin-top: 64px;  
 }
+
+.TrendPreview {
+  width: 100%;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 20px;
+  font-size: 14px;
+  h4 {
+    margin: 0;
+    padding: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 400;
+    color: #999;
+  }
+  .actions {
+    padding: 5px 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .trend {
+    color: #656565;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    input {
+      color: #222;
+      font-size: 14px;
+      line-height: 32px;
+      appearance: none;
+      border: none;
+      flex: 1;
+    }
+    .text {
+      flex: 1;
+    }
+    .badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 9px;
+      line-height: 9px;
+      font-weight: 600;
+      border-radius: 9px;
+      padding: 3px 7px;
+      background-color: #f3f3fb;
+      border: 1px solid #eaeaf2;
+      color: #888;
+    }
+  }
+  .trend-auto {
+    height: 35px;
+    line-height: 35px;
+    padding: 0 15px;
+  }
+  .drag-handle {
+    cursor: grab;
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
