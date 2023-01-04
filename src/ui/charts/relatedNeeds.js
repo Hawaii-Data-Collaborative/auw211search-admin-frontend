@@ -32,7 +32,7 @@ export function RelatedNeedsChart() {
 
   useEffect(() => {
     if (data) {
-      const node = buildChart(data)
+      const node = ForceGraph(data)
 
       const parent = document.getElementById(divId)
       parent.innerHTML = ''
@@ -58,174 +58,135 @@ export function RelatedNeedsChart() {
   )
 }
 
-function buildChart(data, { width = window.innerWidth * 0.6, height = window.innerHeight * 0.6 } = {}) {
-  const root = d3.hierarchy(data)
+// Copyright 2021 Observable, Inc.
+// Released under the ISC license.
+// https://observablehq.com/@d3/force-directed-graph
+function ForceGraph(
+  {
+    nodes, // an iterable of node objects (typically [{id}, …])
+    links // an iterable of link objects (typically [{source, target}, …])
+  },
+  {
+    nodeId = d => d.id, // given d in nodes, returns a unique identifier (string)
+    nodeTitle = d => d.id, // given d in nodes, a title string
+    nodeFill = 'currentColor', // node stroke fill (if not using a group color encoding)
+    nodeStroke = '#ddd', // node stroke color
+    nodeStrokeWidth = 1, // node stroke width, in pixels
+    nodeStrokeOpacity = 1, // node stroke opacity
+    nodeRadius = d => d.value + 20, // node radius, in pixels
+    nodeStrength,
+    linkSource = ({ source }) => source, // given d in links, returns a node identifier string
+    linkTarget = ({ target }) => target, // given d in links, returns a node identifier string
+    linkStroke = '#ddd', // link stroke color
+    linkStrokeOpacity = 0.6, // link stroke opacity
+    linkStrokeWidth = 1, // given d in links, returns a stroke width in pixels
+    linkStrokeLinecap = 'round', // link stroke linecap
+    linkStrength,
+    colors = d3.schemeTableau10, // an array of color strings, for the node groups
+    width = window.innerWidth - 350, // outer width, in pixels
+    height = 800, // outer height, in pixels
+    invalidation // when this promise resolves, stop the simulation
+  } = {}
+) {
+  // Compute values.
+  const N = d3.map(nodes, nodeId).map(intern)
+  const LS = d3.map(links, linkSource).map(intern)
+  const LT = d3.map(links, linkTarget).map(intern)
+  if (nodeTitle === undefined) nodeTitle = (_, i) => N[i]
+  const T = nodeTitle == null ? null : d3.map(nodes, nodeTitle)
+  const W = typeof linkStrokeWidth !== 'function' ? null : d3.map(links, linkStrokeWidth)
+  const L = typeof linkStroke !== 'function' ? null : d3.map(links, linkStroke)
 
-  const margin = { top: 10, right: 120, bottom: 10, left: 40 }
-  const dx = 10
-  const dy = width / 6
-  const tree = d3.tree().nodeSize([dx, dy])
+  // Replace the input nodes and links with mutable objects for the simulation.
+  nodes = d3.map(nodes, (n, i) => ({ id: N[i], value: n.value }))
+  links = d3.map(links, (_, i) => ({ source: LS[i], target: LT[i] }))
 
-  root.x0 = dy / 2
-  root.y0 = 0
-  root.descendants().forEach((d, i) => {
-    d.id = i
-    d._children = d.children
-    // if (d.depth && d.data.name.length !== 7) d.children = null
-  })
+  // Construct the forces.
+  const forceNode = d3.forceManyBody()
+  const forceLink = d3
+    .forceLink(links)
+    .id(({ index: i }) => N[i])
+    .distance(70)
+  if (nodeStrength !== undefined) forceNode.strength(nodeStrength)
+  if (linkStrength !== undefined) forceLink.strength(linkStrength)
+
+  const simulation = d3
+    .forceSimulation(nodes)
+    .force('link', forceLink)
+    .force('charge', forceNode)
+    .force('center', d3.forceCenter())
+    .on('tick', ticked)
 
   const svg = d3
     .create('svg')
-    .attr('viewBox', [-margin.left, -margin.top, width, dx])
-    .style('font', '10px sans-serif')
-    .style('user-select', 'none')
+    .attr('width', width)
+    .attr('height', height)
+    .attr('viewBox', [-width / 2, -height / 2, width, height])
+    .attr('style', 'max-width: 100%; height: auto; height: intrinsic;')
 
-  const gLink = svg
+  const link = svg
     .append('g')
-    .attr('fill', 'none')
-    .attr('stroke', '#555')
-    .attr('stroke-opacity', 0.4)
-    .attr('stroke-width', 1.5)
+    .attr('stroke', typeof linkStroke !== 'function' ? linkStroke : null)
+    .attr('stroke-opacity', linkStrokeOpacity)
+    .attr('stroke-width', typeof linkStrokeWidth !== 'function' ? linkStrokeWidth : null)
+    .attr('stroke-linecap', linkStrokeLinecap)
+    .selectAll('line')
+    .data(links)
+    .join('line')
 
-  const gNode = svg.append('g').attr('cursor', 'pointer').attr('pointer-events', 'all')
+  const nodeG = svg
+    .append('g')
+    .attr('fill', nodeFill)
+    .attr('stroke', nodeStroke)
+    .attr('stroke-opacity', nodeStrokeOpacity)
+    .attr('stroke-width', nodeStrokeWidth)
 
-  let tooltipDiv
-  function showTooltip(data, x, y) {
-    const keyword = data.name
-    const date = dayjs(data.createdAt).format('l LT')
-    tooltipDiv = document.createElement('div')
-    tooltipDiv.className = 'viz-tooltip'
-    tooltipDiv.style.left = `${x}px`
-    tooltipDiv.style.top = `${y - 30}px`
-    tooltipDiv.innerHTML = `<div>"${keyword}" searched at ${date}</div>`
-    document.body.appendChild(tooltipDiv)
+  const node = nodeG
+    .selectAll('circle')
+    .data(nodes)
+    .join('circle')
+    .attr('r', nodeRadius)
+    .attr('fill', '#fff')
+    .attr('stroke', '#ddd')
+    .attr('stroke-width', '1')
+
+  // .on('mouseover', (event, d) => {
+  //   showTooltip(d.id, event.x, event.y)
+  // })
+  // .on('mouseout', () => {
+  //   hideTooltip()
+  // })
+
+  const labels = nodeG
+    .selectAll('text')
+    .data(nodes)
+    .join('text')
+    .attr('text-anchor', 'middle')
+    .attr('font-family', 'arial')
+    .attr('font-size', '11')
+    .attr('fill', '#555')
+    .attr('stroke', 'none')
+    .text(d => d.id)
+
+  if (W) link.attr('stroke-width', ({ index: i }) => W[i])
+  if (L) link.attr('stroke', ({ index: i }) => L[i])
+  if (T) node.append('title').text(({ index: i }) => T[i])
+  if (invalidation != null) invalidation.then(() => simulation.stop())
+
+  function intern(value) {
+    return value !== null && typeof value === 'object' ? value.valueOf() : value
   }
 
-  function hideTooltip() {
-    document.body.removeChild(tooltipDiv)
-  }
-
-  function update(source) {
-    // const duration = d3.event && d3.event.altKey ? 2500 : 250
-    const duration = 250
-    const nodes = root.descendants().reverse()
-    const links = root.links()
-
-    // Compute the new tree layout.
-    tree(root)
-
-    let left = root
-    let right = root
-    root.eachBefore(node => {
-      if (node.x < left.x) left = node
-      if (node.x > right.x) right = node
-    })
-
-    const height = right.x - left.x + margin.top + margin.bottom
-
-    const transition = svg
-      .transition()
-      .duration(duration)
-      .attr('viewBox', [-margin.left, left.x - margin.top, width, height])
-      .tween('resize', window.ResizeObserver ? null : () => () => svg.dispatch('toggle'))
-
-    // Update the nodes…
-    const node = gNode.selectAll('g').data(nodes, d => d.id)
-
-    // Enter any new nodes at the parent's previous position.
-    const nodeEnter = node
-      .enter()
-      .append('g')
-      .attr('transform', d => `translate(${source.y0},${source.x0})`)
-      .attr('fill-opacity', 0)
-      .attr('stroke-opacity', 0)
-      .on('click', (event, d) => {
-        d.children = d.children ? null : d._children
-        update(d)
-      })
-      .on('mouseover', (event, d) => {
-        showTooltip(d.data, event.x, event.y)
-      })
-      .on('mouseout', (event, d) => {
-        hideTooltip()
-      })
-
-    nodeEnter
-      .append('circle')
-      .attr('r', 2.5)
-      .attr('fill', d => (d._children ? '#555' : '#999'))
-      .attr('stroke-width', 10)
-      .attr('title', d => dayjs(d.data.createdAt).format('l LT'))
-
-    nodeEnter
-      .append('text')
-      .attr('dy', '0.31em')
-      .attr('x', d => (d._children ? -6 : 6))
-      .attr('text-anchor', d => (d._children ? 'end' : 'start'))
-      .text(d => d.data.name)
-      .clone(true)
-      .lower()
-      .attr('stroke-linejoin', 'round')
-      .attr('stroke-width', 3)
-      .attr('stroke', 'white')
-
-    // Transition nodes to their new position.
-    // eslint-disable-next-line no-unused-vars
-    const nodeUpdate = node
-      .merge(nodeEnter)
-      .transition(transition)
-      .attr('transform', d => `translate(${d.y},${d.x})`)
-      .attr('fill-opacity', 1)
-      .attr('stroke-opacity', 1)
-
-    // Transition exiting nodes to the parent's new position.
-    // eslint-disable-next-line no-unused-vars
-    const nodeExit = node
-      .exit()
-      .transition(transition)
-      .remove()
-      .attr('transform', d => `translate(${source.y},${source.x})`)
-      .attr('fill-opacity', 0)
-      .attr('stroke-opacity', 0)
-
-    // Update the links…
-    const link = gLink.selectAll('path').data(links, d => d.target.id)
-
-    const diagonal = d3
-      .linkHorizontal()
-      .x(d => d.y)
-      .y(d => d.x)
-
-    // Enter any new links at the parent's previous position.
-    const linkEnter = link
-      .enter()
-      .append('path')
-      .attr('d', d => {
-        const o = { x: source.x0, y: source.y0 }
-        return diagonal({ source: o, target: o })
-      })
-
-    // Transition links to their new position.
-    link.merge(linkEnter).transition(transition).attr('d', diagonal)
-
-    // Transition exiting nodes to the parent's new position.
+  function ticked() {
     link
-      .exit()
-      .transition(transition)
-      .remove()
-      .attr('d', d => {
-        const o = { x: source.x, y: source.y }
-        return diagonal({ source: o, target: o })
-      })
+      .attr('x1', d => d.source.x)
+      .attr('y1', d => d.source.y)
+      .attr('x2', d => d.target.x)
+      .attr('y2', d => d.target.y)
 
-    // Stash the old positions for transition.
-    root.eachBefore(d => {
-      d.x0 = d.x
-      d.y0 = d.y
-    })
+    node.attr('cx', d => d.x).attr('cy', d => d.y)
+    labels.attr('x', d => d.x).attr('y', d => d.y + 3.5)
   }
-
-  update(root)
 
   return svg.node()
 }
