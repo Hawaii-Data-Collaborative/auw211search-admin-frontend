@@ -133,7 +133,7 @@ function FilterSidebar() {
   }
 
   return (
-    <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 400 }}>
+    <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 400, minWidth: 300, overflowX: 'auto' }}>
       <CardContent>
         {/* <SavedQueriesList /> */}
         {/* <FilterLiveSearch /> */}
