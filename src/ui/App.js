@@ -7,6 +7,7 @@ import { dataProvider } from 'ra-data-simple-prisma'
 import GroupIcon from '@mui/icons-material/Group'
 import StoreIcon from '@mui/icons-material/Store'
 import SettingsIcon from '@mui/icons-material/Settings'
+import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import { authProvider } from '../authProvider'
 import { UserActivityList } from './resources/userActivity'
 // import { AgencyList } from './agency'
@@ -15,6 +16,7 @@ import { API_URL } from '../constants'
 import { Settings } from './Settings'
 import { Dashboard } from './Dashboard'
 import { UserActivityDashboard } from './resources/dashboard'
+import { Categories } from './Categories'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +35,7 @@ const Menu = props => (
     <RAMenu.Item to="/user_activity" primaryText="User Activity - List" leftIcon={<GroupIcon />} />
     <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
     {/* <RAMenu.Item to="/agency" primaryText="Agencies" leftIcon={<BusinessIcon />} /> */}
+    <RAMenu.Item to="/categories" primaryText="Categories" leftIcon={<AccountTreeIcon />} />
     <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
   </RAMenu>
 )
@@ -53,6 +56,7 @@ export function App() {
       <Resource name="program" list={ProgramList} edit={ProgramEdit} />
       {/* <Resource name="agency" list={AgencyList} /> */}
       <CustomRoutes>
+        <Route path="/categories" element={<Categories />} />
         <Route path="/settings" element={<Settings />} />
       </CustomRoutes>
     </Admin>

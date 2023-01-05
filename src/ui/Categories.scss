@@ -1,0 +1,57 @@
+.Categories {
+  .list {
+    min-height: 50px;
+    padding: 20px 0;
+  }
+  .actions {
+    padding: 10px 0 30px;
+  }
+  .Category {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    .top {
+      display: flex;
+      align-items: center;
+      padding: 5px 15px 5px 5px;
+      .cname {
+        flex: 1;
+      }
+    }
+    .actions {
+      padding-bottom: 0;
+    }
+    .body {
+      padding: 10px 15px;
+      animation: expand-y 200ms ease-in-out;
+      transform-origin: top left;
+    }
+  }
+  .subcategories {
+    .header {
+      padding: 20px 0 10px;
+      color: #777;
+    }
+  }
+  .sublist {
+    padding: 10px 0 10px 10px;
+  }
+  .Subcategory {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 15px;
+  }
+  .Subcategory + .Subcategory {
+    margin-top: 10px;
+  }
+  .toolbar-wrapper {
+    margin-left: -16px;
+    margin-right: -16px;
+    margin-bottom: -24px;
+  }
+}
+
+@keyframes expand-y {
+  from { transform: scaleY(0.5); }
+  to { transform: scaleY(1); }
+}
