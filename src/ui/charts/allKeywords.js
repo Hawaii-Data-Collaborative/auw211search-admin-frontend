@@ -5,9 +5,12 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
-import { API_URL } from '../../constants'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
+import { Button } from '@mui/material'
+import DownloadIcon from '@mui/icons-material/Download'
+import { API_URL } from '../../constants'
+import { downloadDataset } from '../../util'
 
 dayjs.extend(localizedFormat)
 
@@ -40,11 +43,28 @@ export function AllKeywordSearchesChart() {
     }
   }, [data])
 
+  const onExportClick = () => {
+    let csv = 'Date,Count,Keywords\n'
+    for (const row of data) {
+      csv += `${row.date},${row.count},"${row.keywords.join(',').replaceAll('"', '\\"')}"\n`
+    }
+    downloadDataset(csv, dayjs().format('YYYYMMDD') + '_AllKeywordsChartData.csv')
+  }
+
   return (
     <div className="AllKeywordSearchesChart">
       <div className="header">
-        <div>
+        <div className="row-1">
           <b>All keyword searches</b>
+          <Button
+            color="secondary"
+            variant="outlined"
+            size="small"
+            onClick={onExportClick}
+            startIcon={<DownloadIcon />}
+          >
+            Export
+          </Button>
         </div>
       </div>
       {data ? (

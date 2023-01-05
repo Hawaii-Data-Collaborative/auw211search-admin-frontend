@@ -5,7 +5,10 @@ import dayjs from 'dayjs'
 import * as d3 from 'd3'
 import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
+import { Button } from '@mui/material'
+import DownloadIcon from '@mui/icons-material/Download'
 import { API_URL } from '../../constants'
+import { downloadDataset } from '../../util'
 
 const divId = 'keyword-chart'
 
@@ -43,11 +46,28 @@ export function KeywordChart() {
     }
   }, [data])
 
+  const onExportClick = () => {
+    let csv = 'Keyword,Count\n'
+    for (const row of data) {
+      csv += `${row.keyword.replaceAll(',', '_')},${row.count}\n`
+    }
+    downloadDataset(csv, dayjs().format('YYYYMMDD') + '_KeywordChartData.csv')
+  }
+
   return (
     <div className="KeywordChart">
       <div className="header">
-        <div>
+        <div className="row-1">
           <b>Most popular keyword searches</b>
+          <Button
+            color="secondary"
+            variant="outlined"
+            size="small"
+            onClick={onExportClick}
+            startIcon={<DownloadIcon />}
+          >
+            Export
+          </Button>
         </div>
         <div>
           <select value={range} onChange={e => setRange(e.target.value)}>

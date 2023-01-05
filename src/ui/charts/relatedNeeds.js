@@ -4,9 +4,12 @@ import axios from 'axios'
 import * as d3 from 'd3'
 import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
+import { Button } from '@mui/material'
+import DownloadIcon from '@mui/icons-material/Download'
 import { API_URL } from '../../constants'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
+import { downloadDataset } from '../../util'
 
 dayjs.extend(localizedFormat)
 
@@ -40,11 +43,28 @@ export function RelatedNeedsChart() {
     }
   }, [data])
 
+  const onExportClick = () => {
+    downloadDataset(
+      JSON.stringify(data, null, 2),
+      dayjs().format('YYYYMMDD') + '_RelatedNeedsChartData.json',
+      'application/json;charset=utf-8'
+    )
+  }
+
   return (
     <div className="RelatedNeedsChart">
       <div className="header">
-        <div>
+        <div className="row-1">
           <b>Related Needs</b>
+          <Button
+            color="secondary"
+            variant="outlined"
+            size="small"
+            onClick={onExportClick}
+            startIcon={<DownloadIcon />}
+          >
+            Export
+          </Button>
         </div>
       </div>
       {data ? (
