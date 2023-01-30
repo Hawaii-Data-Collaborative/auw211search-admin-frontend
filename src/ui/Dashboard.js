@@ -18,12 +18,19 @@ export function Dashboard() {
         </p>
         <ul>
           <li>
-            Go to <Link to="/user_activity">User Activity</Link> to see how people are using the site and what they're
-            searching for.
+            Go to the <Link to="/dashboard">User Activity Dashboard</Link> for a high-level view of what people are
+            searching.
+          </li>
+          <li>
+            Go to the <Link to="/user_activity">User Activity List</Link> for a lower-level view of how people are using
+            the site.
           </li>
           <li>
             Go to <Link to="/program">Programs</Link> to add custom keywords to help the search engine guide users to
             certain programs.
+          </li>
+          <li>
+            Go to <Link to="/categories">Categories</Link> to customize the lower portion of the homepage.
           </li>
           <li>
             Go to <Link to="/settings">Settings</Link> to fine-tune the search engine behavior.
