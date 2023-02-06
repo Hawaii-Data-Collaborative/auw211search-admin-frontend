@@ -6,12 +6,16 @@ import {
   FunctionField,
   List,
   Pagination as RAPagination,
-  TextField
+  Form,
+  TextField,
+  useListFilterContext
 } from 'react-admin'
-import { Card, CardContent } from '@mui/material'
+import { Box, ListItem, Card, CardContent, TextField as MuiTextField } from '@mui/material'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { API_URL } from '../../constants'
+import dayjs from 'dayjs'
 
 export const UserActivityList = () => {
   // const filters = [<SearchInput source="userId" />, <SearchInput source="event" />, <SearchInput source="data" />]
@@ -85,8 +89,20 @@ let _events
 let _users
 
 function FilterSidebar() {
+  const { filterValues, setFilters } = useListFilterContext()
   const [events, setEvents] = useState([])
   const [users, setUsers] = useState([])
+
+  useEffect(() => {
+    if (!(filterValues.createdAt_gte && filterValues.createdAt_lte)) {
+      setFilters({
+        ...filterValues,
+        createdAt_gte: dayjs().startOf('day').toDate(),
+        createdAt_lte: dayjs().endOf('day').toDate()
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     if (_events) {
@@ -138,13 +154,26 @@ function FilterSidebar() {
         {/* <SavedQueriesList /> */}
         {/* <FilterLiveSearch /> */}
         <FilterList label="Date">
-          <FilterListItem label="Today" value={{ createdAt: 'today' }} />
-          <FilterListItem label="Yesterday" value={{ createdAt: 'yesterday' }} />
-          <FilterListItem label="This week" value={{ createdAt: 'thisWeek' }} />
-          <FilterListItem label="Last week" value={{ createdAt: 'lastWeek' }} />
-          <FilterListItem label="This month" value={{ createdAt: 'thisMonth' }} />
-          <FilterListItem label="This quarter" value={{ createdAt: 'thisQuarter' }} />
-          <FilterListItem label="This year" value={{ createdAt: 'thisYear' }} />
+          <ListItem>
+            <Form>
+              <Box sx={{ gap: 1, display: 'flex', justifyContent: 'center' }}>
+                <DatePicker
+                  label="From"
+                  value={filterValues.createdAt_gte}
+                  onChange={newValue =>
+                    setFilters({ ...filterValues, createdAt_gte: newValue?.startOf('day').toDate() })
+                  }
+                  renderInput={params => <MuiTextField {...params} size="small" sx={{ minWidth: 150 }} />}
+                />
+                <DatePicker
+                  label="To"
+                  value={filterValues.createdAt_lte}
+                  onChange={newValue => setFilters({ ...filterValues, createdAt_lte: newValue?.endOf('day').toDate() })}
+                  renderInput={params => <MuiTextField {...params} size="small" sx={{ minWidth: 150 }} />}
+                />
+              </Box>
+            </Form>
+          </ListItem>
         </FilterList>
         <FilterList label="Event">
           {events.map(e => (

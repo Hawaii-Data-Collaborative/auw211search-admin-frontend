@@ -4,6 +4,8 @@ import { Admin, CustomRoutes, Resource, Layout as RALayout, Menu as RAMenu } fro
 import { QueryClient } from 'react-query'
 import { Route } from 'react-router-dom'
 import { dataProvider } from 'ra-data-simple-prisma'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import GroupIcon from '@mui/icons-material/Group'
 import StoreIcon from '@mui/icons-material/Store'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -44,21 +46,23 @@ const Layout = props => <RALayout {...props} menu={Menu} />
 
 export function App() {
   return (
-    <Admin
-      authProvider={authProvider}
-      dataProvider={dataProvider(API_URL)}
-      queryClient={queryClient}
-      layout={Layout}
-      dashboard={Dashboard}
-    >
-      <Resource name="dashboard" list={UserActivityDashboard} />
-      <Resource name="user_activity" list={UserActivityList} />
-      <Resource name="program" list={ProgramList} edit={ProgramEdit} />
-      {/* <Resource name="agency" list={AgencyList} /> */}
-      <CustomRoutes>
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/settings" element={<Settings />} />
-      </CustomRoutes>
-    </Admin>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Admin
+        authProvider={authProvider}
+        dataProvider={dataProvider(API_URL)}
+        queryClient={queryClient}
+        layout={Layout}
+        dashboard={Dashboard}
+      >
+        <Resource name="dashboard" list={UserActivityDashboard} />
+        <Resource name="user_activity" list={UserActivityList} />
+        <Resource name="program" list={ProgramList} edit={ProgramEdit} />
+        {/* <Resource name="agency" list={AgencyList} /> */}
+        <CustomRoutes>
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/settings" element={<Settings />} />
+        </CustomRoutes>
+      </Admin>
+    </LocalizationProvider>
   )
 }
