@@ -1,28 +1,37 @@
 import axios from 'axios'
 import { API_URL } from './constants'
 
-const rawuser = localStorage.getItem('user')
-
 export const authProvider = {
-  user: rawuser ? JSON.parse(rawuser) : null,
-  _checkingSession: false,
+  user: null,
+  _didLoad: false,
+  _promise: null,
 
   async getIdentity() {
-    if (this._checkingSession) {
-      return null
-    }
-
-    if (!this.user) {
-      this._checkingSession = true
-      const url = API_URL + '/session'
-      const res = await axios.get(url)
-      this._checkingSession = false
-      const user = res.data.user
+    const handleResponse = res => {
+      const user = res.data?.user
       if (!user) {
         throw new Error('Not logged in')
       }
       localStorage.setItem('user', JSON.stringify(user))
       this.user = user
+    }
+
+    if (this._promise) {
+      const res = await this._promise
+      handleResponse(res)
+    } else if (!this.user) {
+      const url = API_URL + '/session'
+      const promise = axios.get(url).catch(err => {
+        this._didLoad = true
+        if (err?.response?.status === 401) {
+          throw new Error('Not logged in')
+        }
+      })
+      this._promise = promise
+      const res = await promise
+      this._didLoad = true
+      this._promise = null
+      handleResponse(res)
     }
 
     return this.user ? { id: 1, fullName: this.user.email } : null
@@ -37,7 +46,9 @@ export const authProvider = {
       throw new Error('Invalid credentials')
     }
     this.user = user
+    this._didLoad = true
     localStorage.setItem('user', JSON.stringify(user))
+    window.location = '/'
   },
 
   // called when the user clicks on the logout button
@@ -58,7 +69,14 @@ export const authProvider = {
 
   // called when the user navigates to a new location, to check for authentication
   async checkAuth() {
-    if (!this.user) {
+    let user
+    if (this._didLoad) {
+      user = this.user
+    } else {
+      user = await this.getIdentity()
+    }
+
+    if (!user) {
       throw new Error('Not logged in')
     }
   },

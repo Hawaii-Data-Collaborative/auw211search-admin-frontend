@@ -3,7 +3,8 @@ import './App.scss'
 import { Admin, CustomRoutes, Resource, Layout as RALayout, Menu as RAMenu } from 'react-admin'
 import { QueryClient } from 'react-query'
 import { Route } from 'react-router-dom'
-import { dataProvider } from 'ra-data-simple-prisma'
+import { dataProvider as createDataProvider } from 'ra-data-simple-prisma'
+import { AxiosRequestConfig } from 'axios'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import GroupIcon from '@mui/icons-material/Group'
@@ -19,6 +20,7 @@ import { Settings } from './Settings'
 import { Dashboard } from './Dashboard'
 import { UserActivityDashboard } from './resources/dashboard'
 import { Categories } from './Categories'
+import { Loading } from './Loading'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,6 +29,19 @@ const queryClient = new QueryClient({
       retry: false,
       refetchOnWindowFocus: 'always'
     }
+  }
+})
+
+const dataProvider = createDataProvider(API_URL, {
+  axiosInterceptors: {
+    request: [
+      {
+        onFulfilled: (config: AxiosRequestConfig) => {
+          config.withCredentials = true
+          return config
+        }
+      }
+    ]
   }
 })
 
@@ -49,10 +64,13 @@ export function App() {
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Admin
         authProvider={authProvider}
-        dataProvider={dataProvider(API_URL)}
+        dataProvider={dataProvider}
         queryClient={queryClient}
         layout={Layout}
         dashboard={Dashboard}
+        loading={Loading}
+        requireAuth
+        disableTelemetry
       >
         <Resource name="dashboard" list={UserActivityDashboard} />
         <Resource name="user_activity" list={UserActivityList} />
