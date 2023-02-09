@@ -1,6 +1,6 @@
 import './App.scss'
 
-import { Admin, CustomRoutes, Resource, Layout as RALayout, Menu as RAMenu } from 'react-admin'
+import { Admin, CustomRoutes, Resource, Layout as RALayout, Menu as RAMenu, useAuthState } from 'react-admin'
 import { QueryClient } from 'react-query'
 import { Route } from 'react-router-dom'
 import { dataProvider as createDataProvider } from 'ra-data-simple-prisma'
@@ -21,6 +21,8 @@ import { Dashboard } from './Dashboard'
 import { UserActivityDashboard } from './resources/dashboard'
 import { Categories } from './Categories'
 import { Loading } from './Loading'
+import { ResetPassword } from './ResetPassword'
+import { LoginPage } from './LoginPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,17 +47,24 @@ const dataProvider = createDataProvider(API_URL, {
   }
 })
 
-const Menu = props => (
-  <RAMenu {...props}>
-    <RAMenu.DashboardItem primaryText="Home" />
-    <RAMenu.Item to="/dashboard" primaryText="User Activity - Dashboard" leftIcon={<GroupIcon />} />
-    <RAMenu.Item to="/user_activity" primaryText="User Activity - List" leftIcon={<GroupIcon />} />
-    <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
-    {/* <RAMenu.Item to="/agency" primaryText="Agencies" leftIcon={<BusinessIcon />} /> */}
-    <RAMenu.Item to="/categories" primaryText="Categories" leftIcon={<AccountTreeIcon />} />
-    <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
-  </RAMenu>
-)
+const Menu = props => {
+  const { authenticated } = useAuthState()
+  if (!authenticated) {
+    return null
+  }
+
+  return (
+    <RAMenu {...props}>
+      <RAMenu.DashboardItem primaryText="Home" />
+      <RAMenu.Item to="/dashboard" primaryText="User Activity - Dashboard" leftIcon={<GroupIcon />} />
+      <RAMenu.Item to="/user_activity" primaryText="User Activity - List" leftIcon={<GroupIcon />} />
+      <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
+      {/* <RAMenu.Item to="/agency" primaryText="Agencies" leftIcon={<BusinessIcon />} /> */}
+      <RAMenu.Item to="/categories" primaryText="Categories" leftIcon={<AccountTreeIcon />} />
+      <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
+    </RAMenu>
+  )
+}
 
 const Layout = props => <RALayout {...props} menu={Menu} />
 
@@ -67,9 +76,9 @@ export function App() {
         dataProvider={dataProvider}
         queryClient={queryClient}
         layout={Layout}
+        loginPage={LoginPage}
         dashboard={Dashboard}
         loading={Loading}
-        requireAuth
         disableTelemetry
       >
         <Resource name="dashboard" list={UserActivityDashboard} />
@@ -79,6 +88,9 @@ export function App() {
         <CustomRoutes>
           <Route path="/categories" element={<Categories />} />
           <Route path="/settings" element={<Settings />} />
+        </CustomRoutes>
+        <CustomRoutes noLayout>
+          <Route path="/reset_password" element={<ResetPassword />} />
         </CustomRoutes>
       </Admin>
     </LocalizationProvider>
