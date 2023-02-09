@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
 import { TextField, Button } from '@mui/material'
 import { API_URL } from '../constants'
+import { getErrorMessage } from '../util'
 
 export function ResetPassword() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [password2, setPassword2] = useState('')
+  const [action, setAction] = useState(null)
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -21,16 +23,20 @@ export function ResetPassword() {
     const params = new URLSearchParams(window.location.href.split('?')[1])
     const email = params.get('email')
     let token = params.get('token')
+    let action = params.get('action')
     if (email && token) {
       token = decodeURIComponent(token).replace('#/login', '').trim()
       setEmail(decodeURIComponent(email))
+      if (action) {
+        setAction(action)
+      }
       setStep(2)
       const checkToken = async () => {
         try {
           await axios.post(API_URL + '/check_reset_password_token', { token })
           setLoading(false)
         } catch (err) {
-          setError(err.response?.data?.message || err.message)
+          setError(getErrorMessage(err))
           setLoading(false)
         }
       }
@@ -49,7 +55,7 @@ export function ResetPassword() {
       setSuccess(true)
     } catch (err) {
       setSaving(false)
-      notify(err.response?.data?.message || err.message, { type: 'error' })
+      notify(getErrorMessage(err), { type: 'error' })
     }
   }
 
@@ -64,7 +70,7 @@ export function ResetPassword() {
       }, 1000)
     } catch (err) {
       setSaving(false)
-      notify(err.response?.data?.message || err.message, { type: 'error' })
+      notify(getErrorMessage(err), { type: 'error' })
     }
   }
 
@@ -127,7 +133,7 @@ export function ResetPassword() {
   return (
     <div className="ResetPassword full-page">
       <div className="box">
-        <h2>Reset Password</h2>
+        <h2>{action === 'create' ? 'Choose a password' : 'Reset Password'}</h2>
         {ui}
       </div>
     </div>

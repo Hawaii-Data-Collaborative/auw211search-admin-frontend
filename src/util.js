@@ -11,3 +11,7 @@ export function downloadDataset(csv, filename, mimeType = 'text/csv;charset=utf-
     fakeLink.click()
   }
 }
+
+export function getErrorMessage(err) {
+  return err.response?.data?.message || err.message
+}

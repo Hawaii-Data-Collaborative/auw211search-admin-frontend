@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Link, useNotify } from 'react-admin'
 import { TextField, Button } from '@mui/material'
 import { API_URL } from '../constants'
+import { getErrorMessage } from '../util'
 
 export function LoginPage() {
   const [email, setEmail] = useState('')
@@ -20,7 +21,7 @@ export function LoginPage() {
       window.location = '/'
     } catch (err) {
       setSaving(false)
-      notify(err.response?.data?.message || err.message, { type: 'error' })
+      notify(getErrorMessage(err), { type: 'error' })
     }
   }
 
