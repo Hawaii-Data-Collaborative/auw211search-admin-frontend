@@ -2,11 +2,13 @@ import axios from 'axios'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import { Button, ButtonGroup, Card, IconButton } from '@mui/material'
+import { Box, Button, ButtonGroup, Card, IconButton } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
+import SyncIcon from '@mui/icons-material/Sync'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import RemoveIcon from '@mui/icons-material/Remove'
 import { useController } from 'react-hook-form'
+import dayjs from 'dayjs'
 import {
   EditContextProvider,
   NumberInput,
@@ -70,20 +72,26 @@ export function Settings() {
             saving
           }}
         >
-          <SimpleForm sx={{ maxWidth: 400 }}>
-            <SelectInput
-              source="trendingRange"
-              choices={[
-                { id: 'week', name: 'Last 7 days' },
-                { id: 'month', name: 'Last 30 days' },
-                { id: 'quarter', name: 'Last 120 days' },
-                { id: 'year', name: 'Last 365 days' }
-              ]}
-              fullWidth
-            />
-            <NumberInput source="trendingMinCount" label="Minimum # of hits for trending" fullWidth />
-            <NumberInput source="trendingMaxShow" label="Maximum # of trends to show in suggestions" fullWidth />
-            {saving ? null : <TrendPreview />}
+          <SimpleForm>
+            <Box sx={{ maxWidth: 400 }}>
+              <h3>Searchbox Settings</h3>
+              <SelectInput
+                source="trendingRange"
+                choices={[
+                  { id: 'week', name: 'Last 7 days' },
+                  { id: 'month', name: 'Last 30 days' },
+                  { id: 'quarter', name: 'Last 120 days' },
+                  { id: 'year', name: 'Last 365 days' }
+                ]}
+                fullWidth
+              />
+              <NumberInput source="trendingMinCount" label="Minimum # of hits for trending" fullWidth />
+              <NumberInput source="trendingMaxShow" label="Maximum # of trends to show in suggestions" fullWidth />
+              {saving ? null : <TrendPreview />}
+            </Box>
+
+            <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Database Settings</h3>
+            <SyncInco />
           </SimpleForm>
         </EditContextProvider>
       </Card>
@@ -271,5 +279,45 @@ function TrendPreview() {
         </>
       )}
     </div>
+  )
+}
+
+function SyncInco() {
+  const [saving, setSaving] = useState(false)
+  const [date, setDate] = useState(false)
+  const notify = useNotify()
+
+  const fetchDate = async () => {
+    const res = await axios.get(API_URL + '/settings/sync_db')
+    setDate(dayjs(res.data))
+  }
+
+  useEffect(() => {
+    fetchDate()
+  }, [])
+
+  const onClick = async () => {
+    try {
+      setSaving(true)
+      await axios.post(API_URL + '/settings/sync_db')
+      setSaving(false)
+      fetchDate()
+    } catch (err) {
+      setSaving(false)
+      notify(err.message, { type: 'error' })
+    }
+  }
+
+  return (
+    <Box className="SyncInfo" sx={{ pb: 10 }}>
+      <div>Last sync date: {date ? date.format('l LT') : '[unknown]'}</div>
+      {saving ? (
+        <div style={{ paddingTop: 21, paddingBottom: 10 }}>Working on it, check back in 10 minutes</div>
+      ) : (
+        <Button variant="outlined" onClick={onClick} startIcon={<SyncIcon />} sx={{ mt: 2 }}>
+          Sync now
+        </Button>
+      )}
+    </Box>
   )
 }

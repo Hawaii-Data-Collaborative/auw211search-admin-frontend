@@ -1,5 +1,12 @@
 .Settings {
   margin-top: 64px;  
+
+  .SyncInfo {
+    > div {
+      color: #999;
+      font-size: 14px;
+    }
+  }
 }
 
 .TrendPreview {
