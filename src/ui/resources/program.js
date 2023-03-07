@@ -210,7 +210,6 @@ const Toolbar = () => (
 )
 
 const omitColumns = [
-  'id',
   'keywords',
   'OwnerId',
   'IsDeleted',

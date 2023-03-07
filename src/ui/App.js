@@ -11,7 +11,7 @@ import GroupIcon from '@mui/icons-material/Group'
 import StoreIcon from '@mui/icons-material/Store'
 import SettingsIcon from '@mui/icons-material/Settings'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
-import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import PersonIcon from '@mui/icons-material/Person'
 import { authProvider } from '../authProvider'
 import { UserActivityList } from './resources/userActivity'
 // import { AgencyList } from './agency'
@@ -24,7 +24,7 @@ import { Categories } from './Categories'
 import { Loading } from './Loading'
 import { ResetPassword } from './ResetPassword'
 import { LoginPage } from './LoginPage'
-import { AddUser } from './AddUser'
+import { UserCreate, UserEdit, UserList } from './resources/user'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,8 +63,8 @@ const Menu = props => {
       <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
       {/* <RAMenu.Item to="/agency" primaryText="Agencies" leftIcon={<BusinessIcon />} /> */}
       <RAMenu.Item to="/categories" primaryText="Categories" leftIcon={<AccountTreeIcon />} />
+      <RAMenu.Item to="/user" primaryText="Users" leftIcon={<PersonIcon />} />
       <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
-      <RAMenu.Item to="/add-user" primaryText="Add User" leftIcon={<PersonAddIcon />} />
     </RAMenu>
   )
 }
@@ -87,11 +87,11 @@ export function App() {
         <Resource name="dashboard" list={UserActivityDashboard} />
         <Resource name="user_activity" list={UserActivityList} />
         <Resource name="program" list={ProgramList} edit={ProgramEdit} />
+        <Resource name="user" list={UserList} create={UserCreate} edit={UserEdit} />
         {/* <Resource name="agency" list={AgencyList} /> */}
         <CustomRoutes>
           <Route path="/categories" element={<Categories />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/add-user" element={<AddUser />} />
         </CustomRoutes>
         <CustomRoutes noLayout>
           <Route path="/reset_password" element={<ResetPassword />} />
