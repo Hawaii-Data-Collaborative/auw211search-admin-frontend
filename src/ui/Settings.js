@@ -10,6 +10,7 @@ import RemoveIcon from '@mui/icons-material/Remove'
 import { useController } from 'react-hook-form'
 import dayjs from 'dayjs'
 import {
+  BooleanInput,
   EditContextProvider,
   NumberInput,
   SelectInput,
@@ -75,6 +76,9 @@ export function Settings() {
           <SimpleForm>
             <Box sx={{ maxWidth: 400 }}>
               <h3>Searchbox Settings</h3>
+              <BooleanInput source="enableTaxonomySearches" label="Enable taxonomy suggestions" />
+              <BooleanInput source="enableTrendingSearches" label="Enable trending suggestions" />
+              <BooleanInput source="enableRelatedSearches" label="Enable related search suggestions" />
               <SelectInput
                 source="trendingRange"
                 choices={[
