@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
-echo "[deploy] building ..."
+echo "[build] building ..."
 yarn build
-echo "[deploy] compressing ..."
+echo "[build] compressing ..."
 tar czf build.tar.gz build
-echo "[deploy] done"
+echo "[build] done"
