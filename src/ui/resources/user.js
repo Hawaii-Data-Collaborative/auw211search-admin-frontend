@@ -63,6 +63,9 @@ export const UserCreate = () => {
     <Create title="Invite User" mutationOptions={{ onSuccess }}>
       <SimpleForm sx={{ maxWidth: 500 }}>
         <TextInput source="email" fullWidth />
+        <ReferenceArrayInput source="roleIds" reference="role">
+          <SelectArrayInput />
+        </ReferenceArrayInput>
       </SimpleForm>
     </Create>
   )
