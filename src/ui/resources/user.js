@@ -5,31 +5,45 @@ import {
   Edit,
   EmailField,
   List,
+  ReferenceArrayInput,
+  SelectArrayInput,
   SimpleForm,
   TextInput,
+  useAuthProvider,
   useNotify,
+  usePermissions,
   useRecordContext
 } from 'react-admin'
 
-export const UserList = () => (
-  <List>
-    <Datagrid rowClick="edit">
-      <EmailField source="email" />
-      <DateField source="lastLogin" />
-      <DateField source="createdAt" />
-    </Datagrid>
-  </List>
-)
+export const UserList = () => {
+  usePermissions()
+  const authProvider = useAuthProvider()
+  const permissions = authProvider.getPermissionsSync()
+  const canEdit = permissions.includes('Users.Change')
+
+  return (
+    <List actions={canEdit ? undefined : <div style={{ height: 50 }} />}>
+      <Datagrid rowClick={canEdit ? 'edit' : undefined} bulkActionButtons={null}>
+        <EmailField source="email" />
+        <DateField source="lastLogin" />
+        <DateField source="createdAt" />
+      </Datagrid>
+    </List>
+  )
+}
 
 const UserTitle = () => {
   const user = useRecordContext()
-  return <span>{user.email}</span>
+  return <span>{user?.email}</span>
 }
 
 export const UserEdit = () => (
   <Edit title={<UserTitle />}>
     <SimpleForm sx={{ maxWidth: 500 }}>
       <TextInput source="email" fullWidth />
+      <ReferenceArrayInput source="roleIds" reference="role">
+        <SelectArrayInput />
+      </ReferenceArrayInput>
     </SimpleForm>
   </Edit>
 )

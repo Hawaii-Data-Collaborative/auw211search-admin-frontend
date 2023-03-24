@@ -83,6 +83,10 @@ export const authProvider = {
 
   // called when the user navigates to a new location, to check for permissions / roles
   async getPermissions() {
-    return []
+    return this.user?.permissions || []
+  },
+
+  getPermissionsSync() {
+    return this.user?.permissions || []
   }
 }

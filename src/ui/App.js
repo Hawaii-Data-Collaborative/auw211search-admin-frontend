@@ -1,10 +1,17 @@
 import './App.scss'
 
-import { Admin, CustomRoutes, Resource, Layout as RALayout, Menu as RAMenu, useAuthState } from 'react-admin'
+import {
+  Admin,
+  CustomRoutes,
+  Resource,
+  Layout as RALayout,
+  Menu as RAMenu,
+  useAuthState,
+  useAuthProvider
+} from 'react-admin'
 import { QueryClient } from 'react-query'
 import { Route } from 'react-router-dom'
 import { dataProvider as createDataProvider } from 'ra-data-simple-prisma'
-import { AxiosRequestConfig } from 'axios'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import GroupIcon from '@mui/icons-material/Group'
@@ -12,6 +19,7 @@ import StoreIcon from '@mui/icons-material/Store'
 import SettingsIcon from '@mui/icons-material/Settings'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import PersonIcon from '@mui/icons-material/Person'
+import TuneIcon from '@mui/icons-material/Tune'
 import { authProvider } from '../authProvider'
 import { UserActivityList } from './resources/userActivity'
 // import { AgencyList } from './agency'
@@ -25,6 +33,7 @@ import { Loading } from './Loading'
 import { ResetPassword } from './ResetPassword'
 import { LoginPage } from './LoginPage'
 import { UserCreate, UserEdit, UserList } from './resources/user'
+import { RoleCreate, RoleEdit, RoleList } from './resources/role'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,7 +49,7 @@ const dataProvider = createDataProvider(API_URL, {
   axiosInterceptors: {
     request: [
       {
-        onFulfilled: (config: AxiosRequestConfig) => {
+        onFulfilled: config => {
           config.withCredentials = true
           return config
         }
@@ -51,6 +60,9 @@ const dataProvider = createDataProvider(API_URL, {
 
 const Menu = props => {
   const { authenticated } = useAuthState()
+  const authProvider = useAuthProvider()
+  const permissions = authProvider.getPermissionsSync()
+
   if (!authenticated) {
     return null
   }
@@ -58,13 +70,24 @@ const Menu = props => {
   return (
     <RAMenu {...props}>
       <RAMenu.DashboardItem primaryText="Home" />
-      <RAMenu.Item to="/dashboard" primaryText="User Activity - Dashboard" leftIcon={<GroupIcon />} />
-      <RAMenu.Item to="/user_activity" primaryText="User Activity - List" leftIcon={<GroupIcon />} />
-      <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
+      {permissions.includes('UserActivity.View') && (
+        <RAMenu.Item to="/dashboard" primaryText="User Activity - Dashboard" leftIcon={<GroupIcon />} />
+      )}
+      {permissions.includes('UserActivity.View') && (
+        <RAMenu.Item to="/user_activity" primaryText="User Activity - List" leftIcon={<GroupIcon />} />
+      )}
+      {permissions.includes('Programs.View') && (
+        <RAMenu.Item to="/program" primaryText="Programs" leftIcon={<StoreIcon />} />
+      )}
       {/* <RAMenu.Item to="/agency" primaryText="Agencies" leftIcon={<BusinessIcon />} /> */}
-      <RAMenu.Item to="/categories" primaryText="Categories" leftIcon={<AccountTreeIcon />} />
-      <RAMenu.Item to="/user" primaryText="Users" leftIcon={<PersonIcon />} />
-      <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
+      {permissions.includes('Categories.View') && (
+        <RAMenu.Item to="/categories" primaryText="Categories" leftIcon={<AccountTreeIcon />} />
+      )}
+      {permissions.includes('Users.View') && <RAMenu.Item to="/user" primaryText="Users" leftIcon={<PersonIcon />} />}
+      {permissions.includes('Roles.View') && <RAMenu.Item to="/role" primaryText="Roles" leftIcon={<TuneIcon />} />}
+      {permissions.includes('Settings.Change') && (
+        <RAMenu.Item to="/settings" primaryText="Settings" leftIcon={<SettingsIcon />} />
+      )}
     </RAMenu>
   )
 }
@@ -88,6 +111,7 @@ export function App() {
         <Resource name="user_activity" list={UserActivityList} />
         <Resource name="program" list={ProgramList} edit={ProgramEdit} />
         <Resource name="user" list={UserList} create={UserCreate} edit={UserEdit} />
+        <Resource name="role" list={RoleList} create={RoleCreate} edit={RoleEdit} />
         {/* <Resource name="agency" list={AgencyList} /> */}
         <CustomRoutes>
           <Route path="/categories" element={<Categories />} />

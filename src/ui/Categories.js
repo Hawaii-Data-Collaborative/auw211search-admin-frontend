@@ -3,7 +3,7 @@ import './Categories.scss'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import _ from 'lodash'
-import { Title, Toolbar, useNotify } from 'react-admin'
+import { Title, Toolbar, useAuthProvider, useNotify, usePermissions } from 'react-admin'
 import { Card, CardContent, Button, IconButton, TextField } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -13,6 +13,10 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { API_URL } from '../constants'
 
 export function Categories() {
+  usePermissions()
+  const authProvider = useAuthProvider()
+  const permissions = authProvider.getPermissionsSync()
+
   const notify = useNotify()
   const [categories, setCategories] = useState([])
   const [saving, setSaving] = useState(false)
@@ -50,6 +54,8 @@ export function Categories() {
     }
   }
 
+  const canEdit = permissions.includes('Categories.Change')
+
   return (
     <div className="Categories">
       <Card sx={{ mt: 8 }}>
@@ -59,37 +65,43 @@ export function Categories() {
             {categories.map((c, i) => (
               <Category
                 key={i}
+                canEdit={canEdit}
                 category={c}
                 onChange={(...args) => onChange(...args, i)}
                 onRemoveClick={() => onRemoveClick(i)}
               />
             ))}
           </div>
-          <div className="actions">
-            <Button color="primary" variant="contained" size="small" onClick={onAddClick} startIcon={<AddIcon />}>
-              Add Category
-            </Button>
-          </div>
-          <div className="toolbar-wrapper">
-            <Toolbar>
-              <Button
-                color="primary"
-                variant="contained"
-                onClick={onSaveClick}
-                disabled={saving}
-                startIcon={<SaveIcon />}
-              >
-                {saving ? 'Saving...' : 'Save'}
+          {canEdit && (
+            <div className="actions">
+              <Button color="primary" variant="contained" size="small" onClick={onAddClick} startIcon={<AddIcon />}>
+                Add Category
               </Button>
-            </Toolbar>
-          </div>
+            </div>
+          )}
+
+          {canEdit && (
+            <div className="toolbar-wrapper">
+              <Toolbar>
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={onSaveClick}
+                  disabled={saving}
+                  startIcon={<SaveIcon />}
+                >
+                  {saving ? 'Saving...' : 'Save'}
+                </Button>
+              </Toolbar>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
   )
 }
 
-function Category({ category, onChange, onRemoveClick }) {
+function Category({ category, canEdit, onChange, onRemoveClick }) {
   const [show, setShow] = useState(false)
 
   const onAddChildClick = () => {
@@ -116,14 +128,28 @@ function Category({ category, onChange, onRemoveClick }) {
           {show ? <KeyboardArrowDownIcon /> : <KeyboardArrowRightIcon />}
         </IconButton>
         <span className="cname">{category.name}</span>
-        <Button color="warning" variant="outlined" size="small" onClick={onRemoveClick} startIcon={<RemoveIcon />}>
-          Remove
-        </Button>
+        {canEdit && (
+          <Button color="warning" variant="outlined" size="small" onClick={onRemoveClick} startIcon={<RemoveIcon />}>
+            Remove
+          </Button>
+        )}
       </div>
       {show ? (
         <div className="body">
-          <TextField label="Name" value={category.name} onChange={e => onChange('name', e.target.value)} fullWidth />
-          <TextField label="Icon" value={category.icon} onChange={e => onChange('icon', e.target.value)} fullWidth />
+          <TextField
+            label="Name"
+            disabled={!canEdit}
+            value={category.name}
+            onChange={e => onChange('name', e.target.value)}
+            fullWidth
+          />
+          <TextField
+            label="Icon"
+            disabled={!canEdit}
+            value={category.icon}
+            onChange={e => onChange('icon', e.target.value)}
+            fullWidth
+          />
           <div className="subcategories">
             <div className="header">Subcategories</div>
             <div className="sublist">
@@ -131,28 +157,32 @@ function Category({ category, onChange, onRemoveClick }) {
                 <Subcategory
                   key={i}
                   category={child}
+                  canEdit={canEdit}
                   onChange={(...args) => onChildChange(...args, i)}
                   onRemoveClick={() => onRemoveChildClick(i)}
                 />
               ))}
             </div>
           </div>
-          <div className="actions">
-            <Button color="primary" variant="outlined" size="small" onClick={onAddChildClick} startIcon={<AddIcon />}>
-              Add Subcategory
-            </Button>
-          </div>
+          {canEdit && (
+            <div className="actions">
+              <Button color="primary" variant="outlined" size="small" onClick={onAddChildClick} startIcon={<AddIcon />}>
+                Add Subcategory
+              </Button>
+            </div>
+          )}
         </div>
       ) : null}
     </div>
   )
 }
 
-function Subcategory({ category, onChange, onRemoveClick }) {
+function Subcategory({ category, canEdit, onChange, onRemoveClick }) {
   return (
     <div className="Subcategory">
       <TextField
         label="Name"
+        disabled={!canEdit}
         value={category.name}
         onChange={e => onChange('name', e.target.value)}
         size="small"
@@ -160,6 +190,7 @@ function Subcategory({ category, onChange, onRemoveClick }) {
       />
       <TextField
         label="URL Parameters (taxonomy codes, etc.)"
+        disabled={!canEdit}
         value={category.params}
         onChange={e => onChange('params', e.target.value)}
         size="small"
@@ -167,16 +198,18 @@ function Subcategory({ category, onChange, onRemoveClick }) {
         multiline
         fullWidth
       />
-      <Button
-        color="warning"
-        variant="outlined"
-        size="small"
-        onClick={onRemoveClick}
-        startIcon={<RemoveIcon />}
-        sx={{ mt: 1 }}
-      >
-        Remove
-      </Button>
+      {canEdit && (
+        <Button
+          color="warning"
+          variant="outlined"
+          size="small"
+          onClick={onRemoveClick}
+          startIcon={<RemoveIcon />}
+          sx={{ mt: 1 }}
+        >
+          Remove
+        </Button>
+      )}
     </div>
   )
 }

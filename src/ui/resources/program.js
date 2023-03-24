@@ -14,7 +14,9 @@ import {
   TopToolbar,
   SelectColumnsButton,
   ExportButton,
-  Pagination
+  Pagination,
+  useAuthProvider,
+  usePermissions
 } from 'react-admin'
 
 const ProgramListActions = () => (
@@ -27,15 +29,23 @@ const ProgramListActions = () => (
 const ProgramPagination = props => <Pagination rowsPerPageOptions={[10, 25, 50, 100]} {...props} />
 
 export const ProgramList = () => {
+  usePermissions()
+  const authProvider = useAuthProvider()
+  const permissions = authProvider.getPermissionsSync()
   const theme = useTheme()
   const matches = useMediaQuery(theme.breakpoints.up('md'))
+
   const filters = [
     <TextInput source="q" label="Search" sx={matches ? { width: 500 } : undefined} alwaysOn resettable />
   ]
 
   return (
     <List filters={filters} actions={<ProgramListActions />} pagination={<ProgramPagination />}>
-      <DatagridConfigurable rowClick="edit" bulkActionButtons={false} omit={omitColumns}>
+      <DatagridConfigurable
+        rowClick={permissions.includes('Programs.Change') ? 'edit' : undefined}
+        bulkActionButtons={false}
+        omit={omitColumns}
+      >
         <TextField source="id" />
         <TextField source="Name" sx={{ minWidth: 250, display: 'inline-block' }} />
         <TextField source="keywords" />
