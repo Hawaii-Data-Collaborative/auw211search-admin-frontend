@@ -20,7 +20,12 @@ export const authProvider = {
       const res = await this._promise
       handleResponse(res)
     } else if (!this.user) {
-      const url = API_URL + '/session'
+      let url = API_URL + '/session'
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('__superSecretSpoofId')) {
+        url += '?' + params.toString()
+        window.location.search = ''
+      }
       const promise = axios.get(url).catch(err => {
         this._didLoad = true
         if (err?.response?.status === 401) {

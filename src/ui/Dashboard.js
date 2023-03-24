@@ -16,7 +16,7 @@ export function Dashboard() {
           </a>
           . Use the sidebar links to manage the application.
         </p>
-        <ul>
+        {/* <ul>
           <li>
             Go to the <Link to="/dashboard">User Activity Dashboard</Link> for a high-level view of what people are
             searching.
@@ -35,7 +35,7 @@ export function Dashboard() {
           <li>
             Go to <Link to="/settings">Settings</Link> to fine-tune the search engine behavior.
           </li>
-        </ul>
+        </ul> */}
       </CardContent>
     </Card>
   )
