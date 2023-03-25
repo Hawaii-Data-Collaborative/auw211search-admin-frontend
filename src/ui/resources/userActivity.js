@@ -5,7 +5,7 @@ import {
   FilterListItem,
   FunctionField,
   List,
-  Pagination as RAPagination,
+  Pagination,
   Form,
   TextField,
   useListFilterContext
@@ -21,7 +21,7 @@ export const UserActivityList = () => {
   // const filters = [<SearchInput source="userId" />, <SearchInput source="event" />, <SearchInput source="data" />]
 
   return (
-    <List aside={<FilterSidebar />} pagination={<Pagination />}>
+    <List aside={<FilterSidebar />} pagination={<Pagination rowsPerPageOptions={[10, 25, 50, 100]} />}>
       <Datagrid bulkActionButtons={false}>
         <TextField source="id" />
         <TextField source="userId" />
@@ -81,23 +81,19 @@ function renderData(record) {
   )
 }
 
-function Pagination() {
-  return <RAPagination perPage={100} rowsPerPageOptions={[10, 25, 50, 100]} />
-}
-
 let _events
-let _users
+// let _users
 
 function FilterSidebar() {
   const { filterValues, setFilters } = useListFilterContext()
   const [events, setEvents] = useState([])
-  const [users, setUsers] = useState([])
+  // const [users, setUsers] = useState([])
 
   useEffect(() => {
     if (!(filterValues.createdAt_gte && filterValues.createdAt_lte)) {
       setFilters({
         ...filterValues,
-        createdAt_gte: dayjs().startOf('day').toDate(),
+        createdAt_gte: dayjs('2022-12-14').toDate(),
         createdAt_lte: dayjs().endOf('day').toDate()
       })
     }
@@ -120,21 +116,21 @@ function FilterSidebar() {
     }
   }, [])
 
-  useEffect(() => {
-    if (_users) {
-      setEvents(_users)
-    } else {
-      const fn = async () => {
-        const res = await axios.get(API_URL + '/user_activity_users')
-        const { data } = res
-        if (data) {
-          _users = data
-        }
-        setUsers(data)
-      }
-      fn()
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (_users) {
+  //     setEvents(_users)
+  //   } else {
+  //     const fn = async () => {
+  //       const res = await axios.get(API_URL + '/user_activity_users')
+  //       const { data } = res
+  //       if (data) {
+  //         _users = data
+  //       }
+  //       setUsers(data)
+  //     }
+  //     fn()
+  //   }
+  // }, [])
 
   const getIndent = eventName => {
     const visit = (eventName, indent = 0) => {
@@ -149,7 +145,7 @@ function FilterSidebar() {
   }
 
   return (
-    <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 400, minWidth: 300, overflowX: 'auto' }}>
+    <Card sx={{ order: -1, mr: 2, mt: '64px', mb: '52px', width: 400, minWidth: 400, overflowX: 'auto' }}>
       <CardContent>
         {/* <SavedQueriesList /> */}
         {/* <FilterLiveSearch /> */}
@@ -180,11 +176,11 @@ function FilterSidebar() {
             <FilterListItem key={e} label={e} value={{ event: e }} sx={{ pl: getIndent(e) }} />
           ))}
         </FilterList>
-        <FilterList label="User">
+        {/* <FilterList label="User">
           {users.map(u => (
             <FilterListItem key={u} label={u} value={{ userId: u }} sx={{ pl: getIndent(u) }} />
           ))}
-        </FilterList>
+        </FilterList> */}
       </CardContent>
     </Card>
   )
