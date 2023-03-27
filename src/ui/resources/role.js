@@ -66,7 +66,7 @@ const RoleTitle = () => {
 }
 
 export const RoleEdit = () => (
-  <Edit title={<RoleTitle />}>
+  <Edit title={<RoleTitle />} mutationMode="pessimistic">
     <SimpleForm sx={{ maxWidth: 500 }}>
       <TextInput source="name" fullWidth />
       <TextInput source="description" label="Description (optional)" fullWidth multiline minRows={3} />

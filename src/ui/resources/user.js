@@ -38,7 +38,7 @@ const UserTitle = () => {
 }
 
 export const UserEdit = () => (
-  <Edit title={<UserTitle />}>
+  <Edit title={<UserTitle />} mutationMode="pessimistic">
     <SimpleForm sx={{ maxWidth: 500 }}>
       <TextInput source="email" fullWidth />
       <ReferenceArrayInput source="roleIds" reference="role">
