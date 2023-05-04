@@ -4,8 +4,9 @@ import axios from 'axios'
 import * as d3 from 'd3'
 import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
-import { Button } from '@mui/material'
+import { Button, Dialog, IconButton } from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
+import InfoIcon from '@mui/icons-material/Info'
 import { API_URL } from '../../constants'
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
@@ -18,6 +19,7 @@ const divId = 'related-needs-chart'
 export function RelatedNeedsChart() {
   const notify = useNotify()
   const [data, setData] = useState(null)
+  const [showHelp, setShowHelp] = useState(false)
 
   useEffect(() => {
     setData(null)
@@ -55,7 +57,12 @@ export function RelatedNeedsChart() {
     <div className="RelatedNeedsChart">
       <div className="header">
         <div className="row-1">
-          <b>Related Needs</b>
+          <b>
+            Related Needs
+            <IconButton onClick={() => setShowHelp(true)} style={{ transform: 'translateY(-2px)' }}>
+              <InfoIcon fontSize="small" style={{ color: '#aaa' }} />
+            </IconButton>
+          </b>
           <Button
             color="secondary"
             variant="outlined"
@@ -73,6 +80,14 @@ export function RelatedNeedsChart() {
         <div key="loading" className="loading" style={{ width: 450, height: 220 }}>
           Loading...
         </div>
+      )}
+
+      {showHelp && (
+        <Dialog onClose={() => setShowHelp(false)} open>
+          <div style={{ padding: 30 }}>
+            Related Needs are when a user does multiple keyword searches with less than one hour between each search.
+          </div>
+        </Dialog>
       )}
     </div>
   )
@@ -104,7 +119,7 @@ function ForceGraph(
     linkStrength,
     colors = d3.schemeTableau10, // an array of color strings, for the node groups
     width = window.innerWidth - 350, // outer width, in pixels
-    height = 800, // outer height, in pixels
+    height = 700, // outer height, in pixels
     invalidation // when this promise resolves, stop the simulation
   } = {}
 ) {
