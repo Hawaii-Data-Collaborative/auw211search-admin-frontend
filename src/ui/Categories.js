@@ -44,10 +44,9 @@ export function Categories() {
   const onSaveClick = async () => {
     try {
       setSaving(true)
-      await axios.post(API_URL + '/categories', categories).then(res => {
-        notify('Saved.')
-        setSaving(false)
-      })
+      await axios.post(API_URL + '/categories', categories)
+      notify('Saved.')
+      setSaving(false)
     } catch (err) {
       setSaving(false)
       notify(err.message, { type: 'error' })

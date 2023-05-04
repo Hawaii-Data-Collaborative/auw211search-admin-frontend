@@ -75,10 +75,11 @@ export function Settings() {
         >
           <SimpleForm>
             <Box sx={{ maxWidth: 400 }}>
-              <h3>Searchbox Settings</h3>
+              <h3 style={{ marginTop: 10 }}>Searchbox Settings</h3>
               <BooleanInput source="enableTaxonomySearches" label="Enable taxonomy suggestions" />
               <BooleanInput source="enableTrendingSearches" label="Enable trending suggestions" />
               <BooleanInput source="enableRelatedSearches" label="Enable related search suggestions" />
+              <h3>Trending Criteria</h3>
               <SelectInput
                 source="trendingRange"
                 choices={[
@@ -205,7 +206,7 @@ function TrendPreview() {
         'Loading...'
       ) : (
         <>
-          <h4>Trending</h4>
+          <h4>Current List of Trending</h4>
           <div className="actions">
             <ButtonGroup size="small">
               <Button variant={style === 'AUTO' ? 'contained' : 'outlined'} onClick={() => setStyle('AUTO')}>

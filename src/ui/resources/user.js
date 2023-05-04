@@ -3,11 +3,11 @@ import {
   Datagrid,
   DateField,
   Edit,
-  EmailField,
   List,
   ReferenceArrayInput,
   SelectArrayInput,
   SimpleForm,
+  TextField,
   TextInput,
   useAuthProvider,
   useNotify,
@@ -24,7 +24,7 @@ export const UserList = () => {
   return (
     <List actions={canEdit ? undefined : <div style={{ height: 50 }} />}>
       <Datagrid rowClick={canEdit ? 'edit' : undefined} bulkActionButtons={null}>
-        <EmailField source="email" />
+        <TextField source="email" />
         <DateField source="lastLogin" />
         <DateField source="createdAt" />
       </Datagrid>

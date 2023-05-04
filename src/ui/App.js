@@ -14,6 +14,7 @@ import { Route } from 'react-router-dom'
 import { dataProvider as createDataProvider } from 'ra-data-simple-prisma'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import EditNotificationsIcon from '@mui/icons-material/EditNotifications'
 import GroupIcon from '@mui/icons-material/Group'
 import StoreIcon from '@mui/icons-material/Store'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -28,6 +29,7 @@ import { API_URL } from '../constants'
 import { Settings } from './Settings'
 import { Dashboard } from './Dashboard'
 import { UserActivityDashboard } from './resources/dashboard'
+import { Banner } from './Banner'
 import { Categories } from './Categories'
 import { Loading } from './Loading'
 import { ResetPassword } from './ResetPassword'
@@ -70,6 +72,7 @@ const Menu = props => {
   return (
     <RAMenu {...props}>
       <RAMenu.DashboardItem primaryText="Home" />
+      <RAMenu.Item to="/banner" primaryText="Homepage Banner" leftIcon={<EditNotificationsIcon />} />
       {permissions.includes('UserActivity.View') && (
         <RAMenu.Item to="/dashboard" primaryText="User Activity - Dashboard" leftIcon={<GroupIcon />} />
       )}
@@ -114,6 +117,7 @@ export function App() {
         <Resource name="role" list={RoleList} create={RoleCreate} edit={RoleEdit} />
         {/* <Resource name="agency" list={AgencyList} /> */}
         <CustomRoutes>
+          <Route path="/banner" element={<Banner />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/settings" element={<Settings />} />
         </CustomRoutes>
