@@ -7,7 +7,8 @@ import {
   Layout as RALayout,
   Menu as RAMenu,
   useAuthState,
-  useAuthProvider
+  useAuthProvider,
+  defaultTheme
 } from 'react-admin'
 import { QueryClient } from 'react-query'
 import { Route } from 'react-router-dom'
@@ -108,6 +109,14 @@ export function App() {
         loginPage={LoginPage}
         dashboard={Dashboard}
         loading={Loading}
+        theme={{
+          ...defaultTheme,
+          palette: {
+            ...defaultTheme.palette,
+            primary: { main: '#ffb351' },
+            secondary: { main: '#005191' }
+          }
+        }}
         disableTelemetry
       >
         <Resource name="dashboard" list={UserActivityDashboard} />

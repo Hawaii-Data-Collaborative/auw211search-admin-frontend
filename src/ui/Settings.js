@@ -209,10 +209,18 @@ function TrendPreview() {
           <h4>Current List of Trending</h4>
           <div className="actions">
             <ButtonGroup size="small">
-              <Button variant={style === 'AUTO' ? 'contained' : 'outlined'} onClick={() => setStyle('AUTO')}>
+              <Button
+                variant={style === 'AUTO' ? 'contained' : 'outlined'}
+                onClick={() => setStyle('AUTO')}
+                disableElevation
+              >
                 Auto
               </Button>
-              <Button variant={style === 'MANUAL' ? 'contained' : 'outlined'} onClick={() => setStyle('MANUAL')}>
+              <Button
+                variant={style === 'MANUAL' ? 'contained' : 'outlined'}
+                onClick={() => setStyle('MANUAL')}
+                disableElevation
+              >
                 Manual
               </Button>
             </ButtonGroup>
