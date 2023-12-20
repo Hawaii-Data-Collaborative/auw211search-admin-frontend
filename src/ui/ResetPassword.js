@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useNotify } from 'react-admin'
 import { TextField, Button } from '@mui/material'
-import { API_URL } from '../constants'
+import { API_URL, BASE_URL } from '../constants'
 import { getErrorMessage } from '../util'
 
 export function ResetPassword() {
@@ -66,7 +66,7 @@ export function ResetPassword() {
       setSaving(false)
       setSuccess(true)
       setTimeout(() => {
-        window.location = '/'
+        window.location = BASE_URL
       }, 1000)
     } catch (err) {
       setSaving(false)

@@ -14,6 +14,7 @@ import {
   usePermissions,
   useRecordContext
 } from 'react-admin'
+import { BASE_URL } from '../../constants'
 
 export const UserList = () => {
   usePermissions()
@@ -54,7 +55,7 @@ export const UserCreate = () => {
   const onSuccess = data => {
     notify(`User created. A link was sent to ${data.email} so they can activate their account.`)
     setTimeout(() => {
-      window.location = '/#/user'
+      window.location = BASE_URL + '#/user'
       window.location.reload()
     }, 2000)
   }
