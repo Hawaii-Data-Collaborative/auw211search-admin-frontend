@@ -4,7 +4,7 @@ import axios from 'axios'
 import { useState } from 'react'
 import { Link, useNotify } from 'react-admin'
 import { TextField, Button } from '@mui/material'
-import { API_URL } from '../constants'
+import { API_URL, BASE_URL } from '../constants'
 import { getErrorMessage } from '../util'
 
 export function LoginPage() {
@@ -18,7 +18,7 @@ export function LoginPage() {
       setSaving(true)
       await axios.post(API_URL + '/login', { email: email.trim(), password })
       setSaving(false)
-      window.location = '/'
+      window.location = BASE_URL
     } catch (err) {
       setSaving(false)
       notify(getErrorMessage(err), { type: 'error' })
