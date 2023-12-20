@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-no-target-blank */
 import './Dashboard.scss'
 
-import { Link, Title } from 'react-admin'
+import { Title } from 'react-admin'
 import { Card, CardContent } from '@mui/material'
 
 export function Dashboard() {
