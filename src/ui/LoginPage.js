@@ -35,6 +35,11 @@ export function LoginPage() {
           label="Password"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && !saving) {
+              submit()
+            }
+          }}
           fullWidth
         />
         <Button variant="contained" disabled={saving || !email.trim()} onClick={submit} sx={{ mt: 2 }} fullWidth>

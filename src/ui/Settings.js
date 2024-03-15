@@ -13,9 +13,11 @@ import {
   BooleanInput,
   EditContextProvider,
   NumberInput,
+  SaveButton,
   SelectInput,
   SimpleForm,
   Title,
+  Toolbar,
   useNotify,
   useRecordContext
 } from 'react-admin'
@@ -62,6 +64,12 @@ export function Settings() {
     return null
   }
 
+  const CustomToolbar = () => (
+    <Toolbar>
+      <SaveButton />
+    </Toolbar>
+  )
+
   return (
     <div className="Settings">
       <Card>
@@ -73,7 +81,7 @@ export function Settings() {
             saving
           }}
         >
-          <SimpleForm>
+          <SimpleForm toolbar={<CustomToolbar />}>
             <Box sx={{ maxWidth: 400 }}>
               <h3 style={{ marginTop: 10 }}>Searchbox Settings</h3>
               <BooleanInput source="enableTaxonomySearches" label="Enable taxonomy suggestions" />
