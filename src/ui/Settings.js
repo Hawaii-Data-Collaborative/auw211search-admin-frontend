@@ -48,7 +48,7 @@ export function Settings() {
       setSaving(true)
       const cleanData = _.cloneDeep(data)
       if (cleanData.trends) {
-        cleanData.trends = JSON.stringify(cleanData.trends.map(t => t.text))
+        cleanData.trends = cleanData.trends.map(t => t.text)
       }
       const res = await axios.post(API_URL + '/settings', cleanData)
       setSettings(res.data)
