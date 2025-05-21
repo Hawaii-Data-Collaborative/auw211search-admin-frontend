@@ -433,17 +433,23 @@ function SyncInfo() {
   return (
     <Card sx={{ width: 300 }}>
       <CardContent>
-        <Typography sx={{ color: 'text.secondary', fontSize: '0.9em', pt: 2 }}>
+        <Typography mb={2}>Sync</Typography>
+        <Typography sx={{ color: 'text.secondary', fontSize: '0.9em' }}>
           Last sync: {date ? date.format('l LT') : '[unknown]'}
         </Typography>
-        {saving ? (
-          <div style={{ paddingTop: 21, paddingBottom: 10 }}>Working on it, check back in 10 minutes</div>
-        ) : (
-          <Button size="small" onClick={onClick} startIcon={<SyncIcon />} sx={{ mt: 2 }}>
+        {saving && (
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.9em', pt: 2 }}>
+            Working on it, check back in 10 minutes
+          </Typography>
+        )}
+      </CardContent>
+      <CardActions>
+        {!saving && (
+          <Button size="small" onClick={onClick} startIcon={<SyncIcon />}>
             Sync now
           </Button>
         )}
-      </CardContent>
+      </CardActions>
     </Card>
   )
 }
