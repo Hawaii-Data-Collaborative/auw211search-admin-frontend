@@ -18,6 +18,8 @@ import AddIcon from '@mui/icons-material/Add'
 import SyncIcon from '@mui/icons-material/Sync'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import RemoveIcon from '@mui/icons-material/Remove'
+import PlayIcon from '@mui/icons-material/PlayArrow'
+import StopIcon from '@mui/icons-material/Stop'
 import { useController } from 'react-hook-form'
 import dayjs from 'dayjs'
 import {
@@ -113,15 +115,15 @@ export function Settings() {
               <NumberInput source="trendingMaxShow" label="Maximum # of trends to show in suggestions" fullWidth />
               {saving ? null : <TrendPreview />}
             </Box>
-
-            <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Scheduled Tasks</h3>
-            <ScheduledTasks />
-
-            <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Database Settings</h3>
-            <SyncInfo />
           </SimpleForm>
         </EditContextProvider>
       </Card>
+
+      <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Scheduled Tasks</h3>
+      <ScheduledTasks />
+
+      <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Database Settings</h3>
+      <SyncInfo />
     </div>
   )
 }
@@ -371,7 +373,7 @@ function ScheduledTasks() {
     <div className="ScheduledTasks">
       <Stack direction="row" spacing={2}>
         {data.map(job => (
-          <Card key={job.name} sx={{ minWidth: 275 }}>
+          <Card key={job.name} sx={{ width: 300 }}>
             <CardContent>
               <Typography mb={2}>{job.name}</Typography>
               <Typography sx={{ color: 'text.secondary', fontSize: '0.9em' }}>
@@ -386,11 +388,11 @@ function ScheduledTasks() {
             </CardContent>
             <CardActions>
               {job.active ? (
-                <Button size="small" onClick={() => onStopClick(job.name)}>
+                <Button size="small" startIcon={<StopIcon />} onClick={() => onStopClick(job.name)}>
                   Stop
                 </Button>
               ) : (
-                <Button size="small" onClick={() => onStartClick(job.name)}>
+                <Button size="small" startIcon={<PlayIcon />} onClick={() => onStartClick(job.name)}>
                   Start
                 </Button>
               )}
@@ -429,15 +431,19 @@ function SyncInfo() {
   }
 
   return (
-    <Box className="SyncInfo" sx={{ pb: 10 }}>
-      <div>Last sync date: {date ? date.format('l LT') : '[unknown]'}</div>
-      {saving ? (
-        <div style={{ paddingTop: 21, paddingBottom: 10 }}>Working on it, check back in 10 minutes</div>
-      ) : (
-        <Button variant="outlined" onClick={onClick} startIcon={<SyncIcon />} sx={{ mt: 2 }}>
-          Sync now
-        </Button>
-      )}
-    </Box>
+    <Card sx={{ width: 300 }}>
+      <CardContent>
+        <Typography sx={{ color: 'text.secondary', fontSize: '0.9em', pt: 2 }}>
+          Last sync: {date ? date.format('l LT') : '[unknown]'}
+        </Typography>
+        {saving ? (
+          <div style={{ paddingTop: 21, paddingBottom: 10 }}>Working on it, check back in 10 minutes</div>
+        ) : (
+          <Button size="small" onClick={onClick} startIcon={<SyncIcon />} sx={{ mt: 2 }}>
+            Sync now
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   )
 }
