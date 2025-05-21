@@ -2,7 +2,18 @@ import axios from 'axios'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import { Box, Button, ButtonGroup, Card, IconButton } from '@mui/material'
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Card,
+  IconButton,
+  CardContent,
+  CardActions,
+  Typography,
+  Stack,
+  CircularProgress
+} from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import SyncIcon from '@mui/icons-material/Sync'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
@@ -103,8 +114,11 @@ export function Settings() {
               {saving ? null : <TrendPreview />}
             </Box>
 
+            <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Scheduled Tasks</h3>
+            <ScheduledTasks />
+
             <h3 style={{ margin: 0, padding: '30px 0 15px' }}>Database Settings</h3>
-            <SyncInco />
+            <SyncInfo />
           </SimpleForm>
         </EditContextProvider>
       </Card>
@@ -303,7 +317,92 @@ function TrendPreview() {
   )
 }
 
-function SyncInco() {
+function ScheduledTasks() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const notify = useNotify()
+
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const res = await axios.get(API_URL + '/settings/cron')
+      setData(res.data)
+      setLoading(false)
+    } catch (err) {
+      notify(err.message)
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const onStopClick = async job => {
+    try {
+      await axios.post(API_URL + `/settings/cron?action=stop&job=${job}`)
+      fetchData()
+    } catch (err) {
+      notify(err.message)
+    }
+  }
+
+  const onStartClick = async job => {
+    try {
+      await axios.post(API_URL + `/settings/cron?action=start&job=${job}`)
+      fetchData()
+    } catch (err) {
+      notify(err.message)
+    }
+  }
+
+  if (loading) {
+    return (
+      <Card sx={{ minWidth: 275, minHeight: 183 }}>
+        <CardContent>
+          <CircularProgress />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="ScheduledTasks">
+      <Stack direction="row" spacing={2}>
+        {data.map(job => (
+          <Card key={job.name} sx={{ minWidth: 275 }}>
+            <CardContent>
+              <Typography mb={2}>{job.name}</Typography>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.9em' }}>
+                Status: {job.active ? 'Active' : 'Inactive'}
+              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.9em' }}>
+                Last run: {job.lastDate ? dayjs(job.lastDate).format('l LT') : 'N/A'}
+              </Typography>
+              <Typography sx={{ color: 'text.secondary', fontSize: '0.9em' }}>
+                Next run: {job.nextDate ? dayjs(job.nextDate).format('l LT') : 'N/A'}
+              </Typography>
+            </CardContent>
+            <CardActions>
+              {job.active ? (
+                <Button size="small" onClick={() => onStopClick(job.name)}>
+                  Stop
+                </Button>
+              ) : (
+                <Button size="small" onClick={() => onStartClick(job.name)}>
+                  Start
+                </Button>
+              )}
+            </CardActions>
+          </Card>
+        ))}
+      </Stack>
+    </div>
+  )
+}
+
+function SyncInfo() {
   const [saving, setSaving] = useState(false)
   const [date, setDate] = useState(false)
   const notify = useNotify()
